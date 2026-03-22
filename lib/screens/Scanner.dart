@@ -91,7 +91,7 @@ class _ScanScreenState extends State<ScanScreen> {
 
               final entry = '${result.device.remoteId } : $deviceName';
 
-              final existing = await DeviceStorage.loadDevices();
+              final existing = await DeviceStorage.getSavedDevices();
               if (!existing.contains(entry)) {
                 await DeviceStorage.saveDevices([...existing, entry]);
               }

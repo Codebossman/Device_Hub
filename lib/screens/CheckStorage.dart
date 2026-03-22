@@ -15,7 +15,7 @@ class _CheckStorageState extends State<CheckStorage> {
   }
 
   Future<void> loadSavedDevices() async {
-    final devices = await DeviceStorage.loadDevices();
+    final devices = await DeviceStorage.getSavedDevices();
     setState(() {
       savedDevices = devices;
     });
@@ -24,7 +24,7 @@ class _CheckStorageState extends State<CheckStorage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Saved Devices'), leading: IconButton(icon: Icon(Icons.garage), onPressed: () => DeviceStorage.removeAllDevices()),),
+      appBar: AppBar(title: Text('Saved Devices'), leading: IconButton(icon: Icon(Icons.garage), onPressed: () => DeviceStorage.key),),
       body: ListView.builder(
         itemCount: savedDevices.length,
         itemBuilder: (context, index) {

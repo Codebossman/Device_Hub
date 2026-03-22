@@ -26,22 +26,43 @@ void loadDevices() async {
 }
   
   
-  
+bool hasTank(List<String> devices) {
+  return devices.any((device) {
+    final parts = device.split(" : ");
+
+    if (parts.length < 2) return false;
+
+    final id = parts[0];
+    final name = parts[1];
+
+    return id == tankID.toString() && name == "Tankk";
+  });
+}  
 
 Widget isTank() {
-  if (savedDevices.contains(tankID.toString() + " : Tankk")) {
-    return Device(
-      name: "Tankk",
-      isOn: true,
-      onTap: () {
-        print("Tapped Tankk");
-      },
-    );
-  } else {
-    return Container();
-  }
+  return FutureBuilder<List<String>>(
+    future: DeviceStorage.getSavedDevices(),
+    builder: (context, snapshot) {
+      if (!snapshot.hasData) return SizedBox();
+
+      final devices = snapshot.data!;
+
+      if (hasTank(devices)) {
+        return Device(
+          name: "Tankk",
+          isOn: true,
+          onTap: () {
+            print("Tapped Tankk");
+          },
+        );
+      }
+
+      return SizedBox();
+    },
+  );
 }
   Widget build(BuildContext context) {
+    print("Saved devices: $savedDevices");
     return Scaffold(
       appBar: AppBar(title: Text('Devices')),
       body: Column(
