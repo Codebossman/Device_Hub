@@ -24,7 +24,7 @@ class _CheckStorageState extends State<CheckStorage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Saved Devices'), leading: IconButton(icon: Icon(Icons.garage), onPressed: () => DeviceStorage.key),),
+      appBar: AppBar(title: Text('Saved Devices'), leading: IconButton(icon: Icon(Icons.garage), onPressed: () => DeviceStorage.removeAllDevices()),),
       body: ListView.builder(
         itemCount: savedDevices.length,
         itemBuilder: (context, index) {

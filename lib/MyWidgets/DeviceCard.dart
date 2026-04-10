@@ -61,8 +61,8 @@ class Device extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   Icon(
-                    isOn ? Icons.light_mode : Icons.light_mode_outlined,
-                    color: isOn ? Colors.yellow : Colors.black54,
+                    isOn ? Icons.check : Icons.check_box_outline_blank,
+                    color: isOn ? Colors.green : Colors.black54,
                   ),
                 ],
               ),

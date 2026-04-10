@@ -4,6 +4,7 @@ import 'package:controller_app/screens/CheckStorage.dart';
 import 'package:controller_app/screens/Devices.dart';
 import 'package:controller_app/screens/Scanner.dart';
 import 'package:controller_app/screens/Tankk.dart';
+import 'package:controller_app/screens/buzz.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 
@@ -23,7 +24,8 @@ class _HomeState extends State<Home> {
     Devices(),
     ScanScreen(),
     Controller(device: BluetoothDevice(remoteId: tankID), onExit: () {}),
-    CheckStorage()
+    CheckStorage(),
+    Buzz()
     
   ];
   @override
@@ -92,6 +94,17 @@ AnimatedContainer(
           onTap: () {
             setState(() {
               selectedIndex = 2;
+            });
+          },
+        ),
+        SideBarButton(
+          icon: Icons.speaker_phone,
+          label: "Buzzer",
+          selected: selectedIndex == 4,
+          showingLabel: sidebarOpen,
+          onTap: () {
+            setState(() {
+              selectedIndex = 4;
             });
           },
         ),
