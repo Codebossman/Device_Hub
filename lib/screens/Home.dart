@@ -25,7 +25,7 @@ class _HomeState extends State<Home> {
     ScanScreen(),
     Controller(device: BluetoothDevice(remoteId: tankID), onExit: () {}),
     CheckStorage(),
-    Buzz(device: BluetoothDevice(remoteId: tankID))
+    Buzz(device: BluetoothDevice(remoteId: buzzID))
     
   ];
   @override

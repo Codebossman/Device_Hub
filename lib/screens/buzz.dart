@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
+import 'package:controller_app/services/app_logger.dart';
 
 class Buzz extends StatefulWidget {
   final BluetoothDevice device;
@@ -12,27 +15,27 @@ class Buzz extends StatefulWidget {
 
 class _BuzzState extends State<Buzz> {
   BluetoothCharacteristic? buzzCharacteristic;
+  StreamSubscription<BluetoothConnectionState>? _connectionSubscription;
 
   final TextEditingController secondsController = TextEditingController();
 
   void startBuzz(int seconds) async {
     try {
       if (buzzCharacteristic == null) {
-        debugPrint("Characteristic is NULL");
+        AppLogger.warning("Buzz characteristic is null");
         return;
       }
 
       final message = "$seconds";
-      debugPrint("Writing: $message");
+      AppLogger.ble("Writing buzz command: $message");
 
       await buzzCharacteristic!.write(
         message.codeUnits,
         withoutResponse: false,
       );
 
-      debugPrint("Write successful");
     } catch (e) {
-      debugPrint("WRITE ERROR: $e");
+      AppLogger.error("Buzz write failed", e);
     }
   }
 
@@ -40,8 +43,8 @@ class _BuzzState extends State<Buzz> {
   void initState() {
     super.initState();
     discoverServices();
-    widget.device.connectionState.listen((state) {
-      debugPrint("Connection state: $state");
+    _connectionSubscription = widget.device.connectionState.listen((state) {
+      AppLogger.ble("Buzz connection state: $state");
     });
   }
 
@@ -58,11 +61,12 @@ class _BuzzState extends State<Buzz> {
       }
     }
 
-    debugPrint("Characteristic found: $buzzCharacteristic");
+    AppLogger.ble("Buzz characteristic found: $buzzCharacteristic");
   }
 
   @override
   void dispose() {
+    _connectionSubscription?.cancel();
     secondsController.dispose();
     super.dispose();
   }
@@ -93,7 +97,7 @@ class _BuzzState extends State<Buzz> {
                 if (seconds != null) {
                   startBuzz(seconds);
                 } else {
-                  debugPrint("Invalid number");
+                  AppLogger.warning("Invalid buzz duration");
                 }
               },
               child: Icon(Icons.play_arrow),

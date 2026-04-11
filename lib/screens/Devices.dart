@@ -1,27 +1,39 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:controller_app/services/DeviceStorage.dart';
 import 'package:controller_app/MyWidgets/DeviceCard.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
+import 'package:controller_app/services/app_logger.dart';
 class Devices extends StatefulWidget {
   @override
   State<Devices> createState() => _DevicesState();
 }
 
 class _DevicesState extends State<Devices> {
-  @override
-  Widget build(BuildContext context) {
+  late final StreamSubscription<List<ScanResult>> _scanSubscription;
   List<ScanResult> scanResults = [];
-  void startScan() async {
-    FlutterBluePlus.scanResults.listen((results) {
-      debugPrint("Scan results count: ${results.length}");
+
+  @override
+  void initState() {
+    super.initState();
+    _scanSubscription = FlutterBluePlus.scanResults.listen((results) {
+      AppLogger.ble("Saved devices scan results count: ${results.length}");
+      if (!mounted) return;
       setState(() {
         scanResults = results;
       });
     });
-
   }
-  startScan();
-  
+
+  @override
+  void dispose() {
+    _scanSubscription.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text('Devices')),
       body: FutureBuilder<List<String>>(
@@ -55,7 +67,7 @@ class _DevicesState extends State<Devices> {
                 name: name,
                 isOn: true,
                 onTap: () {
-                  print("Tapped $name");
+                  AppLogger.ble("Tapped saved device: $name");
                 },
               );
             }).toList(),

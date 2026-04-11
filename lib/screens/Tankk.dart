@@ -1,9 +1,12 @@
+import 'dart:async';
+
 import 'package:controller_app/MyWidgets/DeviceCard.dart';
 import 'package:controller_app/screens/Devices.dart';
 import 'package:controller_app/screens/Home.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:controller_app/commands/MotorCommands.dart';
+import 'package:controller_app/services/app_logger.dart';
 
 class Controller extends StatefulWidget {
   final BluetoothDevice device;
@@ -18,14 +21,15 @@ class Controller extends StatefulWidget {
 class _ControllerState extends State<Controller> {
   double leftSpeed = 0;
   double rightSpeed = 0;
+  StreamSubscription<BluetoothConnectionState>? _connectionSubscription;
 
   
   @override
   void initState() {
     super.initState();
     discoverServices();
-    widget.device.connectionState.listen((state) {
-      debugPrint("Connection state: $state");
+    _connectionSubscription = widget.device.connectionState.listen((state) {
+      AppLogger.ble("Controller connection state: $state");
     });
   }
 
@@ -42,7 +46,13 @@ class _ControllerState extends State<Controller> {
       }
     }
 
-    debugPrint("Characteristic found: $motorCharacteristic");
+    AppLogger.ble("Motor characteristic found: $motorCharacteristic");
+  }
+
+  @override
+  void dispose() {
+    _connectionSubscription?.cancel();
+    super.dispose();
   }
 
   // we'll plug BLE write here next@override

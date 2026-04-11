@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:controller_app/services/DeviceStorage.dart';
 
 import 'package:flutter/material.dart';
@@ -6,6 +8,7 @@ import 'package:controller_app/all_IDs/MacAddress.dart';
 import 'package:controller_app/screens/Door.dart';
 import 'package:controller_app/screens/Tankk.dart';
 import 'package:controller_app/services/Permissions.dart';
+import 'package:controller_app/services/app_logger.dart';
 
 class ScanScreen extends StatefulWidget {
   const ScanScreen({super.key});
@@ -17,17 +20,16 @@ class ScanScreen extends StatefulWidget {
 class _ScanScreenState extends State<ScanScreen> {
   List<ScanResult> scanResults = [];
   List<String> savedDevices = [];
+  StreamSubscription<List<ScanResult>>? _scanSubscription;
 
   
   void isTank(BuildContext context, ScanResult result) {
       if (result.device.remoteId == tankID) {
-        print("Device is: ${result.device}");
         savedDevices.add(result.device.remoteId.toString() + " : Tankk");
       }
     }
   void isDoor(BuildContext context, ScanResult result) {
     if (result.device.remoteId == doorID) {
-      print("Device is: ${result.device}");
       savedDevices.add(result.device.remoteId.toString() + " : Door");
     }
     
@@ -42,13 +44,19 @@ class _ScanScreenState extends State<ScanScreen> {
   }
 
   void startScan() async {
-    FlutterBluePlus.scanResults.listen((results) {
-      debugPrint("Scan results count: ${results.length}");
+    _scanSubscription = FlutterBluePlus.scanResults.listen((results) {
+      AppLogger.ble("Scanner results count: ${results.length}");
+      if (!mounted) return;
       setState(() {
         scanResults = results;
       });
     });
+  }
 
+  @override
+  void dispose() {
+    _scanSubscription?.cancel();
+    super.dispose();
   }
 
   @override
@@ -82,7 +90,7 @@ class _ScanScreenState extends State<ScanScreen> {
               try {
                 await result.device.connect();
               } catch (e) {
-                debugPrint('Connect error: $e');
+                AppLogger.error('Connect error', e);
               }
 
               final deviceName = (result.advertisementData.advName?.isNotEmpty ?? false)
