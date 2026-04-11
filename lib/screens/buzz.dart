@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 
 class Buzz extends StatefulWidget {
-  const Buzz({super.key});
+  final BluetoothDevice device;
+
+  const Buzz({super.key, required this.device});
 
   @override
   State<Buzz> createState() => _BuzzState();
@@ -11,7 +13,7 @@ class Buzz extends StatefulWidget {
 class _BuzzState extends State<Buzz> {
   BluetoothCharacteristic? buzzCharacteristic;
 
-  TextEditingController secondsController = TextEditingController();
+  final TextEditingController secondsController = TextEditingController();
 
   void startBuzz(int seconds) async {
     try {
@@ -32,6 +34,37 @@ class _BuzzState extends State<Buzz> {
     } catch (e) {
       debugPrint("WRITE ERROR: $e");
     }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    discoverServices();
+    widget.device.connectionState.listen((state) {
+      debugPrint("Connection state: $state");
+    });
+  }
+
+  Future<void> discoverServices() async {
+    List<BluetoothService> services = await widget.device.discoverServices();
+
+    for (var service in services) {
+      if (service.uuid.toString().contains("1234")) {
+        for (var characteristic in service.characteristics) {
+          if (characteristic.uuid.toString().contains("5678")) {
+            buzzCharacteristic = characteristic;
+          }
+        }
+      }
+    }
+
+    debugPrint("Characteristic found: $buzzCharacteristic");
+  }
+
+  @override
+  void dispose() {
+    secondsController.dispose();
+    super.dispose();
   }
 
   @override
